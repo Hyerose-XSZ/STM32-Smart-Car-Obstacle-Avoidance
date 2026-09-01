@@ -158,7 +158,7 @@ int main(void) {
             Motor_SetSpeed(0, 0);     // 刹停电机
             GPIOE->BRR = (1 << 5);    // 点亮 LED0 指示检测到障碍物
         } else {
-            Motor_SetSpeed(450, 450); // 前方安全，以 45% 速度平稳前进
+            Motor_SetSpeed(700, 700); // 前方安全，以 45% 速度平稳前进
             GPIOE->BSRR = (1 << 5);   // 熄灭 LED0
         }
 
