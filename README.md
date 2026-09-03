@@ -150,37 +150,21 @@ GPIOA->CRL |= 0xBB330033; // PA0,PA1,PA4,PA5 为通用推挽 (0x3)；PA6,PA7 为
 
 $$\text{Error} = f(\text{Sensor State})$$
 
-$$\text{Current Base} = \max(\text{SPEED\ BASE} - |\text{Error}| \times \text{SPEED\ DROP\ RATE},\; \text{SPEED\ CURVE\ MIN})$$
+$$\text{Current Base} = \max(\text{SPEED\_BASE} - |\text{Error}| \times \text{SPEED\_DROP\_RATE},\; \text{SPEED\_CURVE\_MIN})$$
 
-$$\text{PID Output} = K p \times \text{Error} + K d \times (\text{Error} - \text{Last\ Error})$$
+$$\text{PID Output} = K_p \times \text{Error} + K_d \times (\text{Error} - \text{Last\_Error})$$
 
-* **直道与微弯工况 ($|\text{Error}| < 2.0$)**：
+#### 工况 A：直道与微弯 (|Error| < 2.0)
 
-  $$
-  \begin{cases} 
-  \text{Left Motor} = \text{Current Base} + \text{PID Output} \\ 
-  \text{Right Motor} = \text{Current Base} - \text{PID Output} 
-  \end{cases}
-  $$
+$$\begin{cases} \text{Left Motor} = \text{Current Base} + \text{PID Output} \\ \text{Right Motor} = \text{Current Base} - \text{PID Output} \end{cases}$$
 
-* **中度弯道工况 ($2.0 \le |\text{Error}| < 4.0$)**：
+#### 工况 B：中度弯道 (2.0 <= |Error| < 4.0)
 
-  $$
-  \begin{cases} 
-  \text{Left Motor} = \text{Current Base} + 120,\; \text{Right Motor} = -90 & (\text{Error} > 0) \\ 
-  \text{Left Motor} = -90,\; \text{Right Motor} = \text{Current Base} + 120 & (\text{Error} < 0) 
-  \end{cases}
-  $$
+$$\begin{cases} \text{Left Motor} = \text{Current Base} + 120,\; \text{Right Motor} = -90 & (\text{Error} > 0) \\ \text{Left Motor} = -90,\; \text{Right Motor} = \text{Current Base} + 120 & (\text{Error} < 0) \end{cases}$$
 
-* **急弯大弧线工况 ($|\text{Error}| \ge 4.0$)**：
+#### 工况 C：急弯大弧线 (|Error| >= 4.0)
 
-  $$
-  \begin{cases} 
-  \text{Left Motor} = 380,\; \text{Right Motor} = -180 & (\text{Error} > 0) \\ 
-  \text{Left Motor} = -180,\; \text{Right Motor} = 380 & (\text{Error} < 0) 
-  \end{cases}
-  $$
-
+$$\begin{cases} \text{Left Motor} = 380,\; \text{Right Motor} = -180 & (\text{Error} > 0) \\ \text{Left Motor} = -180,\; \text{Right Motor} = 380 & (\text{Error} < 0) \end{cases}$$
 ### 2. 核心运行参数标定基准表
 
 | 控制维度 | 参数宏定义 | 生产标定值 | 物理作用机制与调参准则 |
