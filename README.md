@@ -144,7 +144,24 @@ GPIOA->CRL |= 0xBB330033; // PA0,PA1,PA4,PA5 为通用推挽 (0x3)；PA6,PA7 为
 
 ## 五、 控制算法架构与参数标定手册
 
-1. 动量抑制阶梯转向算法架构 (PID_Tracking_Loop)系统采用连续误差映射结合分级力矩输出机制：$$\text{Error} = f(\text{Sensor State})$$$$\text{Current Base} = \max(\text{SPEED\_BASE} - \vert{}\text{Error}\vert{} \times \text{SPEED\_DROP\_RATE},\; \text{SPEED\_CURVE\_MIN})$$$$\text{PID Output} = K_p \times \text{Error} + K_d \times (\text{Error} - \text{Last\_Error})$$直道与微弯工况 ($\vert{}\text{Error}\vert{} < 2.0$)：$$\begin{cases} \text{Left Motor} = \text{Current Base} + \text{PID Output} \\ \text{Right Motor} = \text{Current Base} - \text{PID Output} \end{cases}$$中度弯道工况 ($2.0 \le \vert{}\text{Error}\vert{} < 4.0$)：$$\begin{cases} \text{Left Motor} = \text{Current Base} + 120,\; \text{Right Motor} = -90 & (\text{Error} > 0) \\ \text{Left Motor} = -90,\; \text{Right Motor} = \text{Current Base} + 120 & (\text{Error} < 0) \end{cases}$$急弯大弧线工况 ($\vert{}\text{Error}\vert{} \ge 4.0$)：$$\begin{cases} \text{Left Motor} = 380,\; \text{Right Motor} = -180 & (\text{Error} > 0) \\ \text{Left Motor} = -180,\; \text{Right Motor} = 380 & (\text{Error} < 0) \end{cases}$$
+### 1. 动量抑制阶梯转向算法架构 (PID_Tracking_Loop)
+
+系统采用连续误差映射结合分级力矩输出机制：
+
+$$\text{Error} = f(\text{Sensor State})$$
+
+$$\text{Current Base} = \max(\text{SPEED\_BASE} - |\text{Error}| \times \text{SPEED\_DROP\_RATE},\; \text{SPEED\_CURVE\_MIN})$$
+
+$$\text{PID Output} = K_p \times \text{Error} + K_d \times (\text{Error} - \text{Last\_Error})$$
+
+* **直道与微弯工况 ($|\text{Error}| < 2.0$)**：
+  $$\begin{cases} \text{Left Motor} = \text{Current Base} + \text{PID Output} \\ \text{Right Motor} = \text{Current Base} - \text{PID Output} \end{cases}$$
+
+* **中度弯道工况 ($2.0 \le |\text{Error}| < 4.0$)**：
+  $$\begin{cases} \text{Left Motor} = \text{Current Base} + 120,\; \text{Right Motor} = -90 & (\text{Error} > 0) \\ \text{Left Motor} = -90,\; \text{Right Motor} = \text{Current Base} + 120 & (\text{Error} < 0) \end{cases}$$
+
+* **急弯大弧线工况 ($|\text{Error}| \ge 4.0$)**：
+  $$\begin{cases} \text{Left Motor} = 380,\; \text{Right Motor} = -180 & (\text{Error} > 0) \\ \text{Left Motor} = -180,\; \text{Right Motor} = 380 & (\text{Error} < 0) \end{cases}$$
 
 
 
