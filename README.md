@@ -154,18 +154,32 @@ $$\text{Current Base} = \max(\text{SPEED\ BASE} - |\text{Error}| \times \text{SP
 
 $$\text{PID Output} = K p \times \text{Error} + K d \times (\text{Error} - \text{Last\ Error})$$
 
-* **直道与微弯工况 (|Error| < 2.0)**：
-  ```text
-  Left Motor  = Current Base + PID Output
-  Right Motor = Current Base - PID Output
+* **直道与微弯工况 ($|\text{Error}| < 2.0$)**：
+
+  $$
+  \begin{cases} 
+  \text{Left Motor} = \text{Current Base} + \text{PID Output} \\ 
+  \text{Right Motor} = \text{Current Base} - \text{PID Output} 
+  \end{cases}
+  $$
 
 * **中度弯道工况 ($2.0 \le |\text{Error}| < 4.0$)**：
-Error > 0: Left Motor = Current Base + 120,  Right Motor = -90
-Error < 0: Left Motor = -90,                 Right Motor = Current Base + 120
+
+  $$
+  \begin{cases} 
+  \text{Left Motor} = \text{Current Base} + 120,\; \text{Right Motor} = -90 & (\text{Error} > 0) \\ 
+  \text{Left Motor} = -90,\; \text{Right Motor} = \text{Current Base} + 120 & (\text{Error} < 0) 
+  \end{cases}
+  $$
 
 * **急弯大弧线工况 ($|\text{Error}| \ge 4.0$)**：
-Error > 0: Left Motor = 380,                 Right Motor = -180
-Error < 0: Left Motor = -180,                Right Motor = 380
+
+  $$
+  \begin{cases} 
+  \text{Left Motor} = 380,\; \text{Right Motor} = -180 & (\text{Error} > 0) \\ 
+  \text{Left Motor} = -180,\; \text{Right Motor} = 380 & (\text{Error} < 0) 
+  \end{cases}
+  $$
 
 ### 2. 核心运行参数标定基准表
 
