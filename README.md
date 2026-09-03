@@ -150,9 +150,9 @@ GPIOA->CRL |= 0xBB330033; // PA0,PA1,PA4,PA5 为通用推挽 (0x3)；PA6,PA7 为
 
 $$\text{Error} = f(\text{Sensor State})$$
 
-$$\text{Current Base} = \max(\text{SPEED\_BASE} - |\text{Error}| \times \text{SPEED\_DROP\_RATE},\; \text{SPEED\_CURVE\_MIN})$$
+$$\text{Current Base} = \max(\text{SPEED\ BASE} - |\text{Error}| \times \text{SPEED\ DROP\ RATE},\; \text{SPEED\ CURVE\ MIN})$$
 
-$$\text{PID Output} = K_p \times \text{Error} + K_d \times (\text{Error} - \text{Last\_Error})$$
+$$\text{PID Output} = K p \times \text{Error} + K d \times (\text{Error} - \text{Last\ Error})$$
 
 * **直道与微弯工况 ($|\text{Error}| < 2.0$)**：
   $$\begin{cases} \text{Left Motor} = \text{Current Base} + \text{PID Output} \\ \text{Right Motor} = \text{Current Base} - \text{PID Output} \end{cases}$$
