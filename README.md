@@ -106,30 +106,37 @@
 ### 1. 动量抑制分层自适应 PD 控制律
 针对高速直道（PWM 450）冲刺进入小半径急弯（直角弯）由于离心惯性甩尾冲出赛道的难题，采用阶梯力矩分配算法：
 
-$$\text{Error} = f(\text{Sensor State})$$
+```c
+// 1. 连续偏航误差映射与自适应降速
+Error = f(Sensor_State);
+Current_Base = max(SPEED_BASE - abs(Error) * SPEED_DROP_RATE, SPEED_CURVE_MIN);
 
-$$\text{Current Base} = \max(\text{SPEED\_BASE} - |\text{Error}| \times \text{SPEED\_DROP\_RATE},\; \text{SPEED\_CURVE\_MIN})$$
+// 2. PD 微调量运算
+PID_Output = Kp * Error + Kd * (Error - Last_Error);
+```
 
-$$\text{PID Output} = K_p \times \text{Error} + K_d \times (\text{Error} - \text{Last\_Error})$$
-
-* **工况 A：直道与微弯（$|\text{Error}| < 2.0$）**：
-  $$\text{Left Motor} = \text{Current Base} + \text{PID Output}, \quad \text{Right Motor} = \text{Current Base} - \text{PID Output}$$
-* **工况 B：中度弯道（$2.0 \le |\text{Error}| < 4.0$）**：
-  内侧轮施加 `-90` 电制动阻尼，外侧轮施加 $\text{Base} + 120$ 大扭矩；
-* **工况 C：极限急弯（$|\text{Error}| \ge 4.0$）**：
-  启动向心反拉力矩，外轮给定 `380`，内轮施加 **`-180` 负向反转**，强制抑制切向角动量；
-* **工况 D：全白脱轨（`0b0000`）**：
-  读取脱线瞬间锁存的 `memory_dir` 历史记忆，原地高差速自转搜线自救。
+#### 四级分层控制工况响应策略：
+* **工况 A：直道与微弯（`|Error| < 2.0`）**
+  * `Left_Motor  = Current_Base + PID_Output`
+  * `Right_Motor = Current_Base - PID_Output`
+  * 纯正向差速平稳巡航，精准微调偏航。
+* **工况 B：中度弯道（`2.0 <= |Error| < 4.0`）**
+  * 偏右：`Left_Motor = Current_Base + 120`, `Right_Motor = -90`（内侧轮施加负向阻尼刹车）
+  * 偏左：`Left_Motor = -90`, `Right_Motor = Current_Base + 120`
+* **工况 C：极限急弯（`|Error| >= 4.0`）**
+  * 启动向心反拉力矩：外侧轮给定 `380` 大扭矩推进，内侧轮施加 **`-180` 负向反转**，强制将车头拉向内侧，克服离心甩尾。
+* **工况 D：全白脱轨（`0b0000`）**
+  * 读取脱线瞬间锁存的 `memory_dir` 历史偏航记忆，启动原地高速差速自转搜线自救。
 
 ### 2. 复合闭环避障状态机
-超声波动态测距阈值设为 $12.0\text{ cm}$，采用七阶段防剐蹭与平滑重捕时序：
+超声波动态测距阈值设为 `12.0 cm`，采用七阶段防剐蹭与平滑重捕时序：
 1. **制动停顿（150ms）**：吸收直线前冲动量；
-2. **强制倒车缓冲（150ms, -450/-450）**：主动拉开与障碍物纵向裕度；
+2. **强制倒车缓冲（150ms, -450/-450）**：主动拉开与障碍物纵向物理裕度；
 3. **大差速右转借道（320ms, 460/80）**：形成充裕横向外展净距（>35cm）；
-4. **侧向平稳超越（460ms, 300/300）**：越过障碍物侧方投影；
-5. **小锐角回切（430ms, 0/460）**：以 $25^\circ \sim 35^\circ$ 平缓夹角靠近黑线；
-6. **动态二次滤波搜线**：连续 2 次状态确认，消除虚假抖动；
-7. **反向打舵冲平（180ms, 260/80）**：顺平入轨，平滑切换回 PD 循迹。
+4. **侧向平稳超越（460ms, 300/300）**：安全越过障碍物侧方投影面；
+5. **小锐角回切（430ms, 0/460）**：以 25° ~ 35° 平缓小夹角靠近黑线，避免直冲脱轨；
+6. **动态二次滤波搜线**：连续 2 次采样命中黑线确认，彻底消除虚假光电抖动；
+7. **反向打舵冲平（180ms, 260/80）**：顺平入轨，平滑切换回闭环 PD 循迹。
 
 ---
 
